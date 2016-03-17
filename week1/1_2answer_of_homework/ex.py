@@ -31,17 +31,17 @@ with open('1_2answer_of_homework/1_2_homework_required/index.html', 'r') as webD
 
 
 
+print(list(zip(images, prices, titles, reviews, stars)))
 
-
-for image, price, title, review, star in zip(images, prices, titles, reviews, stars):
-    data = {
-        'title': title.get_text(),
-        'price': price.get_text(),
-        'review': review.get_text(),
-        'image': image.get('src'),
-        'star': len(star.find_all("span", class_='glyphicon glyphicon-star'))
-    }
-    print(data)
+# for image, price, title, review, star in zip(images, prices, titles, reviews, stars):
+#     data = {
+#         'title': title.get_text(),
+#         'price': price.get_text(),
+#         'review': review.get_text(),
+#         'image': image.get('src'),
+#         'star': len(star.find_all("span", class_='glyphicon glyphicon-star'))
+#     }
+#     print(data)
 
 
 
