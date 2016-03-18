@@ -12,7 +12,7 @@
 @file: ex.py
 @time: 2016/3/17 21:11
 """
-
+import openpyxl
 
 '''
 抓取标题title，地址address，日租金price，第一张房源图片链接houseImg， 房东图片链接hostImg， 房东性别sex，房东名字name
@@ -22,9 +22,8 @@ from bs4 import BeautifulSoup
 import requests
 import time
 
-# 请求的URL地址
-# url = 'http://bj.xiaozhu.com/fangzi/268527300.html'
-# 获取网页数据函数
+
+# 获取单个房源数据函数
 def get_webData(url):
     web_data = requests.get(url)
     time.sleep(2)
@@ -57,12 +56,13 @@ def get_webData(url):
         else:
             data['sex'] = 'female'
 
-        print(data)
+        return data
 
-
-def get_info(page):
+#获取多页的房屋信息
+def get_infos(page):
     print('Ready....')
-    count = 0
+    count = 1
+    item = 1
     urls = ['http://bj.xiaozhu.com/search-duanzufang-p{}-0/'.format(str(i)) for i in range(1, page+1)]
     for url in urls:
         web_links = requests.get(url)
@@ -73,10 +73,47 @@ def get_info(page):
 
         for link in links:
             pageLink = (link.get('href'))
-            get_webData(pageLink)
-
+            dict_ = get_webData(pageLink)
+            print('writing...')
+            writeToExcel(item, dict_) #写入数据到excel
+            print('itme{} finished...'.format(item))
+            item += 1
+        print('page{} finished{}'.format(count, '-'*30))
         count += 1
-        print('page{} finished'.format(count))
 
 
-get_info(5)
+
+
+#新建一个Excel表格
+def initExcel():
+    wb = openpyxl.Workbook() #新建excel文件
+    wb.create_sheet(index=0, title='houseInfo') #新建一个sheet，名称为houseInfo
+    sheet = wb.get_sheet_by_name('houseInfo')
+    headText = ['Title', 'Adress', 'Price', 'Sex', 'Name', 'HouseImg', 'HostImg']
+    for columnNum in range(1, len(headText)+1):
+        sheet.cell(row=1, column=columnNum).value = headText[columnNum-1] #将标题写到excel中
+    wb.save('House Info.xlsx')
+
+#写入数据到Excel
+def writeToExcel(rowNum, dict_=None):
+    wb = openpyxl.load_workbook('House Info.xlsx')
+    sheet = wb.get_sheet_by_name('houseInfo')
+    try:
+        sheet.cell(row = rowNum+1, column=1).value = dict_['title']
+        sheet.cell(row = rowNum+1, column=2).value = dict_['address']
+        sheet.cell(row = rowNum+1, column=3).value = dict_['price']
+        sheet.cell(row = rowNum+1, column=4).value = dict_['sex']
+        sheet.cell(row = rowNum+1, column=5).value = dict_['name']
+        sheet.cell(row = rowNum+1, column=6).value = dict_['houseImg']
+        sheet.cell(row = rowNum+1, column=7).value = dict_['hostImg']
+        wb.save('House Info.xlsx')
+    except TypeError:
+        print('InValid Info')
+
+
+if __name__ == '__main__':
+    initExcel()
+    get_infos(10)
+
+
+
