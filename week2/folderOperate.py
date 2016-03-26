@@ -28,19 +28,34 @@ import time
 #
 # b = os.path.exists('c:\\123')
 # print(b)
-import requests
-imgUrl = 'http://cache.mrporter.com/images/products/676897/676897_mrp_in_l.jpg'
-response = requests.get(imgUrl, stream=True)
-image = response.content
-brand = 'nike'
-pwd = os.getcwd()
-path_ = pwd + "\\" + brand + '\\'
-print(path_)
-filename = '1'+'.jpg'
-if not os.path.exists(path_):
-	os.makedirs('{}/{}'.format(os.getcwd(), brand))
-	with open(path_  + filename, "wb") as img:
-		img.write(image)
-else:
-	with open(path_  + filename, "wb") as img:
-		img.write(image)
+# import requests
+# imgUrl = 'http://cache.mrporter.com/images/products/676897/676897_mrp_in_l.jpg'
+# response = requests.get(imgUrl, stream=True)
+# image = response.content
+# brand = 'nike'
+# pwd = os.getcwd()
+# path_ = pwd + "\\" + brand + '\\'
+# print(path_)
+# filename = '1'+'.jpg'
+# if not os.path.exists(path_):
+# 	os.makedirs('{}/{}'.format(os.getcwd(), brand))
+# 	with open(path_  + filename, "wb") as img:
+# 		img.write(image)
+# else:
+# 	with open(path_  + filename, "wb") as img:
+# 		img.write(image)
+
+
+import time
+import sys
+
+def progress_test():
+    bar_length=20
+    for percent in range(0, 100):
+        hashes = '#' * int(percent/100.0 * bar_length)
+        spaces = ' ' * (bar_length - len(hashes))
+        sys.stdout.write("\rPercent: [%s] %d%%"%(hashes + spaces, percent))
+        sys.stdout.flush()
+        time.sleep(1)
+
+progress_test()

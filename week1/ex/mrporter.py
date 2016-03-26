@@ -14,10 +14,13 @@
 """
 import os
 import re
+
+import sys
 from bs4 import BeautifulSoup
 import requests
 import time
 import pymongo
+from multiprocessing import Pool
 
 hostUrl = 'http://www.mrporter.com'
 # 连接数据库
@@ -94,9 +97,9 @@ def getPicLinks(url):
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36',
     }
     web_data = requests.get(url, headers=header)
-    # time.sleep(1)
+    time.sleep(1)
     soup = BeautifulSoup(web_data.text, 'lxml')
-    picLinks = soup.select('#product-list > div > div > div.designer > a')
+    picLinks = soup.select('div.pl-grid__column.pl-grid__column--main a')
     for picLink in picLinks:
         linkList.append( 'http://www.mrporter.com'+picLink.get('href'))
     return linkList
@@ -117,37 +120,61 @@ def get_img(link):
         }
         return data
 
-def downloadImg(imgUrl, brand, filename):
+def downloadImg(imgUrl, filename):
     response = requests.get(imgUrl, stream=True)
-    # time.sleep(1)
-    image = response.content
+    total = int(response.headers['Content-Length'])
+    print(total)
+    if total > 0:
+        print('[+] Size: %dKB'%(total/1024))
+    else:
+        print('[+] Size: None')
     try:
+        size = 0
         pwd = os.getcwd()
-        path_ = pwd + "\\" + brand  + '\\'
+        path_ = pwd + "\\"
         if not os.path.exists(path_):
-            os.makedirs('{}/{}'.format(os.getcwd(), brand))
+            os.makedirs('{}'.format(os.getcwd()))
             with open(path_  + filename, "wb") as img:
-                img.write(image)
+                for image in response.iter_content(chunk_size=1024):
+                    if image:
+                        img.write(image)
+                        size += len(image)
+                        img.flush()
+                    sys.stdout.write("\rNow: [%d], Total: %d"%(size, total))
+                    sys.stdout.flush()
                 return
         else:
             with open(path_  + filename, "wb") as img:
-                img.write(image)
+                for image in response.iter_content(chunk_size=1024):
+                    if image:
+                        img.write(image)
+                        size += len(image)
+                        img.flush()
+                    sys.stdout.write("\rNow: %s, Total: %d" % (size, total))
+                    sys.stdout.flush()
                 return
     except Exception:
         print('invalida data')
 
-for item in subLinks.find({'sport':{'$regex':'http://www.mrporter.com/'}}):
-    for link in getPicLinks(item['sport']):
-        brand = link.split('/')[-3]
-        print(link)
-        print(brand)
-    #     try:
-    #         imgLink = 'http:'+get_img(link)['img'].split(' ')[0]
-    #         print(get_img(link)['img'])
-    #         filename = get_img(link)['title']+'.jpg'
-    #         print('downloading......')
-    #         downloadImg(imgLink, brand, filename)
-    #         print('succeed')
-    #     except Exception:
-    #         print('invalida data')
-    # print('finished one brand... continue')
+def main(url):
+    links = getPicLinks(url)
+    count = 0
+    for link in links:
+        try:
+            imgLink = 'http:'+get_img(link)['img'].split(' ')[0]
+            print(get_img(link)['img'])
+            filename = get_img(link)['title']+'.jpg'
+            print('downloading......')
+            downloadImg(imgLink, filename)
+            count += 1
+            # print(count)
+            print('succeed')
+        except Exception:
+            print('invalida data')
+    print('finished one brand... continue')
+
+if __name__ == '__main__':
+    # urls = ['http://www.mrporter.com/en-cn/mens/clothing?pn={}'.format(str(i)) for i in range(1,54)]
+    # for url in urls:
+    #     main('http://www.emlog.net/em_download/emlog/emlog_5.3.1.zip')
+    downloadImg('http://www.emlog.net/em_download/emlog/emlog_5.3.1.zip', '1')
