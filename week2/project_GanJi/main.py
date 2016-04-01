@@ -21,17 +21,12 @@ import pymongo
 获取所有频道下面所有商品链接，之后存入到数据库productDetail
 """
 
-
-
-
 def getProductDetail(channel):
 	"""
 	获取所有频道下面所有商品链接，之后存入到数据库productDetail
 	"""
 	for page in range(1, 101):
 		getItemLinks(channel, page)
-
-
 
 if __name__ == '__main__':
 	client = pymongo.MongoClient('localhost', 27017)
