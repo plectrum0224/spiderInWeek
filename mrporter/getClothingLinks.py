@@ -14,9 +14,8 @@
 """
 import os
 
-from mrporter.getCataLinks import cataLinks
+
 import requests
-from bs4 import BeautifulSoup
 import time
 import json
 
@@ -68,4 +67,4 @@ def getClothingLinks(page, cataId):
 
 
 if __name__ == '__main__':
-	getClothingLinks(3, 9605)
+	getClothingLinks(2, 7050)
