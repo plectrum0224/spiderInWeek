@@ -46,4 +46,6 @@ def getImageLink(itemType):
 
 
 if __name__ == '__main__':
-	getImageLink('New')
+	urlLists = getImageLink('New')
+	for i in urlLists:
+		print(i['imgLink'])

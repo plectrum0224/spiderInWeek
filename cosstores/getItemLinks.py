@@ -31,7 +31,7 @@ def getItemLinks():
 	}
 	host = 'http://www.cosstores.com/'
 	selector = '#infiload_nav > a'
-	for i in findLink('menLink'):
+	for i in findLink('menlink'):
 		url = i['link']
 		links = getLinks(url,  header, selector)
 		for link in links:
@@ -46,7 +46,6 @@ def getItemLinks():
 					if url is None:
 						pass
 					else:
-						print(url)
 						data = {
 							'item': url.split('/')[-3],
 							'name':  url.split('/')[-2],
@@ -58,6 +57,6 @@ def getItemLinks():
 
 if __name__ == '__main__':
 	getItemLinks()
-	# for i in getItemLinks():
-	# 	print(i['item'])
+	for i in getItemLinks():
+		print(i['item'])
 

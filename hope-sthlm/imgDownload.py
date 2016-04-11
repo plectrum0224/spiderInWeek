@@ -1,17 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
-
-"""
-@version: ??
-@author: phpergao
-@license: Apache Licence 
-@contact: endoffight@gmail.com
-@site: http://
-@software: PyCharm
-@file: downloadImg.py
-@time: 2016/3/24 23:45
-"""
 import os
 
 import pymongo
@@ -20,14 +6,14 @@ import sys
 
 
 def downloadImg(imgUrl, pathName, filename):
-	response = requests.get(imgUrl, stream=True)
-	total = int(response.headers['Content-Length'])
-	print(total)
-	if total > 0:
-		print('[+] Size: %dKB'%(total/1024))
-	else:
-		print('[+] Size: None')
 	try:
+		response = requests.get(imgUrl, stream=True)
+		total = int(response.headers['Content-Length'])
+		if total > 0:
+			print('[+] Size: %dKB '%(total/1024))
+		else:
+			print('[+] Size: None')
+
 		size = 0
 		pwd = os.getcwd()
 		path_ = pwd + "\\" + pathName
@@ -39,7 +25,7 @@ def downloadImg(imgUrl, pathName, filename):
 						img.write(image)
 						size += len(image)
 						img.flush()
-					sys.stdout.write("\rNow: [%d], Total: %d"%(size, total))
+					sys.stdout.write("\rNow: [%d], Total: %d "%(size, total))
 					sys.stdout.flush()
 				return
 		else:
@@ -57,10 +43,17 @@ def downloadImg(imgUrl, pathName, filename):
 
 if __name__ == '__main__':
 	client = pymongo.MongoClient('localhost', 27017)
-	cosstores = client['cosstores']
-	imgLinks = cosstores['imgLinks']
-	for i in imgLinks.find():
-		pathName = i['item'] + '\\' + i['name']  + '\\'
-		fileName = i['imgLink'].split('/')[-1]
+	hopeSthlm = client['hopeSthlm']
+	itemLink = hopeSthlm['itemLink']
+	imgLink = hopeSthlm['imgLink']
+	print(imgLink.find().count())
+	count = 0
+	for i in imgLink.find():
+		print(i)
+		pathName = 'pics'  + '\\'
+		fileName = str(count) + i['imgName']
 		url = i['imgLink']
+		print(url)
 		downloadImg(url, pathName, fileName)
+		count += 1
+		print('<-----------------------{}------------------------>'.format(count))
