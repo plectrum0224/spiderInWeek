@@ -21,7 +21,9 @@ import time
 
 while True:
 	client = pymongo.MongoClient('localhost', 27017)
-	GanJi = client['Ganji']
-	itemLinks = GanJi['itemLinks']
-	print(itemLinks.find().count())
+	GJ = client['GJ']
+	itemLink = GJ['itemLink']
+	productDetail = GJ['productDetail']
+	# print(itemLink.find().count())
+	print(productDetail.find().count())
 	time.sleep(5)
