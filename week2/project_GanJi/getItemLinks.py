@@ -18,40 +18,28 @@ import pymongo
 import requests
 from bs4 import BeautifulSoup
 import time
+client = pymongo.MongoClient('localhost', 27017)
+GJ = client['GJ']
+pageLink = GJ['pageLink']
+itemLink = GJ['itemLink']
 
-
-def getItemLinks(channel, page, whoSeal = None):
-	"""
-	从数据库中获取频道链接，之后爬取个频道连接下的商品链接
-	传入三个参数
-	channel 频道链接
-	page 爬取页数
-	whoSeal 默认参数为个人，如选择商家，则将此参数设为'a2'
-	返回链接存入数据中itemLinks表中
-	"""
-	client = pymongo.MongoClient('localhost', 27017)
-	GanJi = client['Ganji']
-	itemLinks = GanJi['itemLinks']
-	if whoSeal is None:
-		url = '{}o{}'.format(channel, str(page))
-	else:
-		url = '{}{}o{}'.format(channel, whoSeal, page)
+def getItemLinks(channel, page, whoSeal='o'):
+	url = '{}{}{}/'.format(channel, whoSeal, str(page))
+	if pageLink.find_one({'pageUrl': url}):
+		return
 	web_data = requests.get(url)
-	time.sleep(5)
-	print(url)
 	soup = BeautifulSoup(web_data.text, 'lxml')
-	# 获取商品链接, 网页中没有pageBox标签则表示到最后一页
 	if soup.find('div', 'pageBox'):
-		links = soup.find_all('a', class_=re.compile('ft-tit|com-title'))
-	# 插入商品链接到数据库
-		for link in links:
-			print(link.get('href'))
-			itemLinks.insert_one({'channel': channel.split('/')[-2], 'link': link.get('href')})
-			print('<<------Insert Succeed....next....------>>')
-			print(link.get('href'))
-		print('Insert Done')
-	else:
-		pass
+		for link in soup.select('.js-item > a'):
+			itemUrl = link.get('href')
+			if itemLink.find_one({'itemUrl': itemUrl}):
+				continue
+			itemLink.insert({'itemUrl': itemUrl, 'crawled': False})
+			print(itemUrl)
+		pageLink.insert({'pageUrl': url})
+		print(url)
+		time.sleep(2)
 
 if __name__ == '__main__':
-	getItemLinks("http://bj.ganji.com/ershoufree/", 55)
+	for i in range(1,10):
+		getItemLinks("http://bj.ganji.com/jiaju/", i)

@@ -8,7 +8,7 @@ ganji = client['ganji']
 page_list = ganji['page_list']
 url_list = ganji['url_list']
 
-
+'http://bj.ganji.com/jiadian/o116/'
 def get_links_from(channel, pages, who_sells='o'):
     list_view = '{}{}{}/'.format(channel, str(who_sells), str(pages))
     if page_list.find_one({'page_url': list_view}):
@@ -31,13 +31,13 @@ def get_detail():
     for data in url_list.find({'crawled': False}):
         wb_data = requests.get(data['url'])
         print('process: ', data)
-        # 处理数据 ......
+        # Process data
         url_list.update({'_id': data['_id']}, {'$set': {'crawled': True}})
         time.sleep(2)
 
 if __name__ == '__main__':
     channel = 'http://bj.ganji.com/jiaju/'
-    for i in range(1, 7):
+    for i in range(1, 200):
         get_links_from(channel, i)
 
     # get_detail()
