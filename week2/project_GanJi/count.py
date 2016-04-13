@@ -24,6 +24,6 @@ while True:
 	GJ = client['GJ']
 	itemLink = GJ['itemLink']
 	productDetail = GJ['productDetail']
-	# print(itemLink.find().count())
+	print(itemLink.find().count())
 	print(productDetail.find().count())
 	time.sleep(5)
